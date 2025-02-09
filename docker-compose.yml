@@ -1,0 +1,42 @@
+
+
+services:
+  rebus_backend:
+    build:
+      context: /home/roberto/Projectos/rebus_backend
+      dockerfile: Dockerfile
+    container_name: rebus_backend
+    restart: always
+    volumes:
+      - /home/roberto/Projectos/rebus_backend:/var/www/html
+    ports:
+      - "80:80"
+    networks:
+      - mi_red
+    environment:
+      - APACHE_DOCUMENT_ROOT=/var/www/html/public
+
+
+
+
+
+  rebus_frontend:
+    build:
+      context: /home/roberto/Projectos/rebus_frontend
+      dockerfile: Dockerfile
+    container_name: rebus_frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      - /home/roberto/Projectos/rebus_frontend:/app
+      #- /app/node_modules
+    depends_on:
+      - rebus_backend
+    command: ["npm", "run", "dev"]
+    networks:
+      - mi_red
+
+#  mariadb_data:
+networks:
+  mi_red:
+    external: true
