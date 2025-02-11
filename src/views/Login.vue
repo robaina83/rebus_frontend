@@ -17,7 +17,7 @@ const login = async () => {
     });
 
     localStorage.setItem("token", response.data.token);
-    router.push("/dashboard"); // Redirige tras el login
+    router.push(`/`); // Redirige tras el login
   } catch (error) {
     errorMessage.value = error.response?.data?.message || "Error en login";
   }
@@ -25,15 +25,13 @@ const login = async () => {
 </script>
 
 <template>
+
   <header>
     <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
 
     <div class="wrapper">
       <Titulo msg="REBUS" />
 
-      <nav>
-
-      </nav>
     </div>
   </header>
   <div class="login-container">

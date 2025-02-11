@@ -1,14 +1,14 @@
 <script setup>
 import { useRouter } from "vue-router";
 import { ref, onMounted, onUnmounted } from "vue";
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import { faBell, faBars, faTimes, faSignOutAlt } from "@fortawesome/free-solid-svg-icons";
 
 const router = useRouter();
 const user = ref(JSON.parse(localStorage.getItem("user")));
-const notifications = ref([
-  "Nuevo usuario registrado",
-  "Actualización del sistema"
-]);
+const notifications = ref(["Nuevo usuario registrado", "Actualización del sistema"]);
 const showNotifications = ref(false);
+const isMenuOpen = ref(false); // 🔥 Control del menú responsive
 
 // ✅ Cerrar notificaciones si se hace clic fuera
 const closeNotifications = (event) => {
@@ -26,44 +26,56 @@ onUnmounted(() => {
 });
 
 const toggleNotifications = (event) => {
-  event.stopPropagation(); // 🔥 Evitar que el clic cierre inmediatamente
+  event.stopPropagation();
   showNotifications.value = !showNotifications.value;
 };
 
-const logout = async () => {
+const toggleMenu = () => {
+  isMenuOpen.value = !isMenuOpen.value;
+};
+
+const logout = () => {
   localStorage.removeItem("token");
   localStorage.removeItem("user");
-  router.push("/");
+  router.push("/login");
 };
 </script>
 
 <template>
   <nav class="navbar">
-    <h2 class="logo">Dashboard</h2>
-    <div class="nav-right">
-      <!-- Notificaciones y Botón de Logout agrupados -->
-      <div class="notifications-and-logout">
-        <!-- Notificaciones -->
-        <div class="dropdown">
-          <button class="notification-btn" @click="toggleNotifications">
-            🔔 {{ notifications.length }}
-          </button>
-          <div class="dropdown-menu" v-show="showNotifications">
-            <div v-for="(note, index) in notifications" :key="index" class="notification">
-              {{ note }}
-            </div>
-            <div v-if="notifications.length === 0" class="notification empty">
-              No hay notificaciones
-            </div>
+    <!-- 🔹 Logo -->
+    <h2 class="logo">REBUS</h2>
+
+    <!-- 🔹 Botón de menú hamburguesa (solo en móviles) -->
+    <button class="menu-button" @click="toggleMenu">
+      <font-awesome-icon :icon="isMenuOpen ? faTimes : faBars" />
+    </button>
+
+    <!-- 🔹 Menú derecho -->
+    <div class="nav-right" :class="{ 'menu-open': isMenuOpen }">
+      <!-- Notificaciones -->
+      <div class="dropdown">
+        <button class="notification-btn" @click="toggleNotifications">
+          <font-awesome-icon :icon="faBell" />
+          <span v-if="notifications.length" class="badge">{{ notifications.length }}</span>
+        </button>
+        <div class="dropdown-menu" v-show="showNotifications">
+          <div v-for="(note, index) in notifications" :key="index" class="notification">
+            {{ note }}
+          </div>
+          <div v-if="notifications.length === 0" class="notification empty">
+            No hay notificaciones
           </div>
         </div>
-
-        <!-- Nombre de usuario -->
-        <span class="user-name">{{ user?.name }}</span>
-
-        <!-- Botón de Logout -->
-        <button @click="logout" class="logout-btn">🚪 Cerrar sesión</button>
       </div>
+
+      <!-- Nombre de usuario -->
+      <span class="user-name">{{ user?.name }}</span>
+
+      <!-- Botón de Logout -->
+      <button @click="logout" class="logout-btn">
+        <font-awesome-icon :icon="faSignOutAlt" /> Cerrar sesión
+      </button>
     </div>
   </nav>
 </template>
@@ -86,28 +98,49 @@ const logout = async () => {
   z-index: 1000;
 }
 
-/* 📌 Contenedor de notificaciones y logout */
-.notifications-and-logout {
+/* 📌 Botón de menú hamburguesa */
+.menu-button {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+  display: none;
+}
+
+/* 📌 Contenedor del menú derecho */
+.nav-right {
   display: flex;
   align-items: center;
   gap: 20px; /* 🔥 Separar elementos */
 }
 
-/* 📌 Botón de notificaciones */
-.notification-btn {
-  background: none;
-  border: none;
-  color: white;
-  font-size: 16px;
-  cursor: pointer;
-  position: relative;
-}
-
-/* 📌 Menú de notificaciones */
+/* 📌 Notificaciones */
 .dropdown {
   position: relative;
 }
 
+.notification-btn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 18px;
+  cursor: pointer;
+  position: relative;
+}
+
+.badge {
+  background: red;
+  color: white;
+  font-size: 12px;
+  border-radius: 50%;
+  padding: 3px 7px;
+  position: absolute;
+  top: -5px;
+  right: -10px;
+}
+
+/* 📌 Menú de notificaciones */
 .dropdown-menu {
   position: absolute;
   top: 40px;
@@ -136,6 +169,12 @@ const logout = async () => {
   color: gray;
 }
 
+/* 📌 Nombre de usuario */
+.user-name {
+  font-size: 16px;
+  font-weight: bold;
+}
+
 /* 📌 Botón de Logout */
 .logout-btn {
   background: red;
@@ -149,5 +188,39 @@ const logout = async () => {
 
 .logout-btn:hover {
   background: darkred;
+}
+
+/* 📌 🔥 Responsive Design */
+@media (max-width: 768px) {
+  .menu-button {
+    display: block; /* 🔥 Mostrar menú hamburguesa en móviles */
+  }
+
+  .nav-right {
+    position: absolute;
+    top: 60px;
+    right: -100%;
+    background: #2D378C;
+    flex-direction: column;
+    gap: 10px;
+    padding: 15px;
+    width: 100%;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    transition: right 0.3s ease-in-out;
+  }
+
+  /* 🔥 Mostrar menú cuando se activa */
+  .nav-right.menu-open {
+    right: 0;
+  }
+
+  /* Ajustar elementos dentro del menú */
+  .dropdown-menu {
+    top: 35px;
+    right: auto;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+  }
 }
 </style>

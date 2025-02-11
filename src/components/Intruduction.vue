@@ -8,7 +8,7 @@ defineProps<{
   <div class="greetings">
     <h1 class="green">{{ msg }}</h1>
     <h3>
-      Sistema de Facturación electrónica
+      Sistema de Facturación electrónica hecho por
       <a href="https://www.telconaudit.es/" target="_blank" rel="noopener">TELCONAUDIT</a>
 
     </h3>
